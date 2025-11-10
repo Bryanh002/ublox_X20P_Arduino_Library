@@ -11,6 +11,11 @@ class UBX_Builder {
 public:
     inline UBX_Frame Build_VALGET(const UBX_CFG_VALGET_Payload& payload) {
         UBX_Frame frame;
+
+        //Set sync bytes
+        frame.sync_1 = sync1;
+        frame.sync_2 = sync2;
+
         //VALGET Class and ID
         frame.cls = 0x06;
         frame.id = 0x8b;
@@ -27,7 +32,7 @@ public:
         };
         
         //Get length of payload as uint16_t
-        frame.length = frame.payload.size();
+        frame.length = (uint16_t)frame.payload.size();
 
         //use checkSumData as data from class to end of payload for calculating check sum
         std::vector<uint8_t> checkSumData;
@@ -36,10 +41,48 @@ public:
         UBX_Util::append_U16(checkSumData, frame.length);
         checkSumData.insert(checkSumData.end(), frame.payload.begin(), frame.payload.end());
 
-        UBX_Util::calcCheckSum(checkSumData, frame.ck_a, frame.ck_a);
+        UBX_Util::calcCheckSum(checkSumData, frame.ck_a, frame.ck_b);
 
         return frame;
     }
 
+    inline UBX_Frame Build_VALSET(const UBX_CFG_VALSET_Payload& payload) {
+        UBX_Frame frame;
+        
+        //Set sync bytes
+        frame.sync_1 = sync1;
+        frame.sync_2 = sync2;
 
+        //VALSET Class and ID
+        frame.cls = 0x06;
+        frame.id = 0x8a;
+
+        //Push payload bytes into frame payload
+        frame.payload.push_back(payload.version);
+        frame.payload.push_back(payload.layer);
+
+        for (auto byte : payload.reserved0) {
+            frame.payload.push_back(byte);
+        };
+        
+        for (auto byte : payload.cfgData) {
+            frame.payload.push_back(byte);
+        };
+
+        //get length of payload as uint16_t
+        for (auto byte : (uint16_t)frame.payload.size()) {
+            UBX_Util::append_U16(frame.length)
+        }
+        frame.length = (uint16_t)frame.payload.size();
+
+        std::vector<uint8_t> checkSumData;
+        checkSumData.push_back(frame.cls);
+        checkSumData.push_back(frame.id);
+        UBX_Util::append_U16(checkSumData, frame.length);
+        checkSumData.insert(checkSumData.end(), frame.payload.begin(), frame.payload.end());
+
+        UBX_Util::calcCheckSum(checkSumData, frame.ck_a, frame.ck_b);
+
+        return frame;
+    }
 };

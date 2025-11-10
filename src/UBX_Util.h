@@ -12,7 +12,7 @@ namespace UBX_Util {
         }
     }
 
-    inline void append_U16(std::vector<uint8_t>& buffer, uint32_t value){
+    inline void append_U16(std::vector<uint8_t>& buffer, uint16_t value){
         buffer.push_back(static_cast<uint8_t>(value & 0xFF));
         buffer.push_back(static_cast<uint8_t>((value >> 8) & 0xFF));
     }
