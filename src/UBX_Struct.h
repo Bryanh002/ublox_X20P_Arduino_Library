@@ -21,14 +21,21 @@ struct UBX_Frame{
 
 struct UBX_CFG_VALGET_Payload{
     uint8_t version =  0x00;            //Message Version
-    uint8_t layer = 0x01;               //Layer from which the configurations are retrieved from 0:Ram, 1:BBR, 2:Flash, 7:Default
+    uint8_t layers = 0x01;               //Layer from which the configurations are retrieved from 0:Ram, 1:BBR, 2:Flash, 7:Default
     uint16_t position = 0;            //Skip this many key values before constructing output message
     std::vector<uint32_t> keys;         //Config Key ID's that are trying to be retrieved
 };
 
 struct UBX_CFG_VALSET_Payload{
     uint8_t version = 0x00;
-    uint8_t layer = 0x07;
+    uint8_t layers = 0x07;
     uint8_t reserved0[2] = {0x00, 0x00};
     std::vector<uint8_t> cfgData;
+};
+
+struct UBX_CFG_VALDEL_Payload{
+    uint8_t version = 0x01;
+    uint8_t layers = 0x03;
+    uint8_t reserved0[2] = {0x00, 0x00};
+    std::vector<uint32_t> keys;
 };
